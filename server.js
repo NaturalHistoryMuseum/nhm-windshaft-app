@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Note, currently to run this server your table must have a column called the_geom_webmercator with SRID of 3857
 // to view the tiles, open ./viewer/index.html and set the fields
 //
