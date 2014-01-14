@@ -13,7 +13,7 @@ var config = {
     base_url_notable: '/database/:dbname',
     grainstore: {
                  datasource: {user:'postgres', host: '127.0.0.1', port: 5432},
-                 styles: {point: "#botany_all {marker-fill: #00FFFF;marker-opacity: 1;marker-width: 8;marker-line-color: white;marker-line-width: 3;marker-line-opacity: 0.9;marker-placement: point;marker-type: ellipse;marker-allow-overlap: true;}"},
+                 styles: {point: "#botany_all {marker-fill: #ee0000;marker-opacity: 1;marker-width: 8;marker-line-color: white;marker-line-width: 1;marker-line-opacity: 0.9;marker-placement: point;marker-type: ellipse;marker-allow-overlap: true;}"},
     }, //see grainstore npm for other options
     redis: {host: '127.0.0.1', port: 6379},
     enable_cors: true,
