@@ -1,0 +1,15 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Andy Allan",
+  "dependencies": {
+    "windshaft": "~0.15.0",
+    "underscore": "~1.3"
+  }
+}
