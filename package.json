@@ -9,7 +9,7 @@
   },
   "author": "Andy Allan",
   "dependencies": {
-    "windshaft": "https://github.com/CartoDB/Windshaft/archive/965cf6dbdbe922bcc3a0a24a4a08829784863bfb.tar.gz",
+    "windshaft": "0.15.1",
     "underscore": "~1.3"
   }
 }
