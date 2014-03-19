@@ -7,16 +7,17 @@
 
 var Windshaft = require('windshaft');
 var _         = require('underscore');
+var appconfig = require('./config');
 
 var config = {
     base_url: '/database/:dbname/table/:table',
     base_url_notable: '/database/:dbname',
     grainstore: {
                  datasource: {
-                   user: 'datastore_default',
-                   password: 'asdf',
-                   host: '127.0.0.1',
-                   port: 5432,
+                   user: appconfig.postgres_user,
+                   password: appconfig.postgres_pass,
+                   host: appconfig.postgres_host,
+                   port: appconfig.postgres_port
                  },
                  mapnik_version: '2.2.0',
                  default_style_version: '2.2.0'
@@ -54,8 +55,8 @@ var config = {
     }
 };
 
-// Initialize tile server on port 4000
+// Initialize tile server
 var ws = new Windshaft.Server(config);
-ws.listen(4000);
+ws.listen(appconfig.windshaft_port);
 
-console.log("map tiles are now being served out of: http://localhost:4000" + config.base_url + '/:z/:x/:y');
+console.log("map tiles are now being served out of: http://localhost:" + appconfig.windshaft_port + config.base_url + '/:z/:x/:y');
