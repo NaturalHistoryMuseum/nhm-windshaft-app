@@ -12,8 +12,12 @@ var config = {
     base_url: '/database/:dbname/table/:table',
     base_url_notable: '/database/:dbname',
     grainstore: {
-                 datasource: {}, // i.e. use socket connection
-                 styles: {point: "#botany_all {marker-fill: #ee0000;marker-opacity: 1;marker-width: 8;marker-line-color: white;marker-line-width: 1;marker-line-opacity: 0.9;marker-placement: point;marker-type: ellipse;marker-allow-overlap: true;}"},
+                 datasource: {
+                   user: 'datastore_default',
+                   password: 'asdf',
+                   host: '127.0.0.1',
+                   port: 5432,
+                 },
                  mapnik_version: '2.2.0',
                  default_style_version: '2.2.0'
     }, //see grainstore npm for other options
@@ -27,7 +31,24 @@ var config = {
         // this is in case you want to test sql parameters eg ...png?sql=select * from my_table limit 10
         req.params =  _.extend({}, req.params);
         _.extend(req.params, req.query);
-
+        // If there is no SQL set, create it here as otherwise the table name doesn't get escaped
+        if (typeof req.params.sql === 'undefined' && typeof req.params.table !== 'undefined'){
+          var tbes = '"' + req.params.table.replace('"', '""').replace("\x00", '') + '"'
+          req.params.sql = '(SELECT the_geom_webmercator FROM ' + tbes + ') as cdbq';
+        }
+        if (typeof req.params.style === 'undefined' && typeof req.params.table !== 'undefined'){
+          req.params.style = "#" + req.params.table + " {"+
+            "marker-fill: #ee0000;" +
+            "marker-opacity: 1;" +
+            "marker-width: 8;" +
+            "marker-line-color: white;" +
+            "marker-line-width: 1;" +
+            "marker-line-opacity: 0.9;" +
+            "marker-placement: point;" +
+            "marker-type: ellipse;" +
+            "marker-allow-overlap: true;"+
+          "}";
+        }
         // send the finished req object on
         callback(null,req);
     }
