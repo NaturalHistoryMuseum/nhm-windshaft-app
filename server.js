@@ -17,7 +17,8 @@ var config = {
                    user: appconfig.postgres_user,
                    password: appconfig.postgres_pass,
                    host: appconfig.postgres_host,
-                   port: appconfig.postgres_port
+                   port: appconfig.postgres_port,
+                   geometry_field: appconfig.geometry_field
                  },
                  mapnik_version: '2.2.0',
                  default_style_version: '2.2.0'
@@ -30,7 +31,7 @@ var config = {
         // If there is no SQL set, create it here as otherwise the table name doesn't get escaped
         if (typeof req.params.sql === 'undefined' && typeof req.params.table !== 'undefined'){
           var tbes = '"' + req.params.table.replace('"', '""').replace("\x00", '') + '"'
-          req.params.sql = '(SELECT the_geom_webmercator FROM ' + tbes + ') as cdbq';
+          req.params.sql = '(SELECT "' + appconfig.geometry_field + '" FROM ' + tbes + ') as cdbq';
         }
         if (typeof req.params.style === 'undefined' && typeof req.params.table !== 'undefined'){
           req.params.style = "#" + req.params.table + " {"+

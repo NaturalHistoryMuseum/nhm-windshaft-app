@@ -13,7 +13,8 @@ var config = {
     postgres_host: '127.0.0.1',
     postgres_port: 5432,
     postgres_user: 'datastore_default',
-    postgres_pass: 'asdf'
+    postgres_pass: 'asdf',
+    geometry_field: '_the_geom_webmercator'
 }
 /* Don't remove this */
 module.exports = config;
