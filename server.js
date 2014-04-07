@@ -20,8 +20,8 @@ var config = {
                    port: appconfig.postgres_port,
                    geometry_field: appconfig.geometry_field
                  },
-                 mapnik_version: '2.2.0',
-                 default_style_version: '2.2.0'
+                 mapnik_version: 'latest',
+                 default_style_version: 'latest'
     }, //see grainstore npm for other options
     redis: {host: '127.0.0.1', port: 6379},
     enable_cors: true,
