@@ -14,7 +14,9 @@ var config = {
     postgres_port: 5432,
     postgres_user: 'datastore_default',
     postgres_pass: 'asdf',
-    geometry_field: '_the_geom_webmercator'
+    geometry_field: '_the_geom_webmercator',
+    num_workers: 2, /* If CPU bound, then set this to the number of CPUs and no more */
+    worker_max_requests: 1000 /* 0 to disable this feature */
 }
 /* Don't remove this */
 module.exports = config;
