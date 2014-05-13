@@ -46,6 +46,9 @@ var config = {
             "marker-type: ellipse;" +
             "marker-allow-overlap: true;"+
           "}";
+        } else {
+          // Basic string replacements on the style
+          req.params.style = req.params.style.replace('!markers!', __dirname + '/resources/markers')
         }
         // send the finished req object on
         callback(null,req);
