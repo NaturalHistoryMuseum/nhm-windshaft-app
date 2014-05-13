@@ -7,9 +7,8 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "Andy Allan",
   "dependencies": {
-    "windshaft": "0.15.1",
+    "windshaft": "0.19.4",
     "underscore": "~1.3"
   }
 }
