@@ -22,4 +22,5 @@ In config.js you must define the following:
 - ```postgres_pass```: The postgres password;
 - ```geometry_field```: The geometry field. This cannot be configured per request, and must be constant. The default on the Ckan plugin in '_the_geom_webmercator';
 - ```num_workers```: The number of workers to run. If the application is CPU bound, then this should be equal to the number of CPUs and no more;
-- ```worker_max_requests```: The maximum number of requests a worker will server. When reached the worker will be closed and a new one spawned. Set to 0 to disable this feature.
+- ```worker_max_requests```: The maximum number of requests a worker will server. When reached the worker will be closed and a new one spawned. Set to 0 to disable this feature;
+- ```restart_on_close```: If true, worker processes will stop and restart when clients unexpectedly close connections.
