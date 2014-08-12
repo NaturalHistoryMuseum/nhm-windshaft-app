@@ -9,6 +9,7 @@ var Windshaft = require('windshaft');
 var _         = require('underscore');
 var cluster   = require('cluster');
 var appconfig = require('./config');
+var TileQuery = require('./lib/tilequery');
 
 var config = {
     base_url: '/database/:dbname/table/:table',
@@ -27,31 +28,28 @@ var config = {
     redis: {host: '127.0.0.1', port: 6379},
     enable_cors: true,
     req2params: function(req, callback){
-        req.params =  _.extend({}, req.params);
-        _.extend(req.params, req.query);
-        // If there is no SQL set, create it here as otherwise the table name doesn't get escaped
-        if (typeof req.params.sql === 'undefined' && typeof req.params.table !== 'undefined'){
-          var tbes = '"' + req.params.table.replace('"', '""').replace("\x00", '') + '"'
-          req.params.sql = '(SELECT "' + appconfig.geometry_field + '" FROM ' + tbes + ') as cdbq';
-        }
-        if (typeof req.params.style === 'undefined' && typeof req.params.table !== 'undefined'){
-          req.params.style = "#" + req.params.table + " {"+
-            "marker-fill: #ee0000;" +
-            "marker-opacity: 1;" +
-            "marker-width: 8;" +
-            "marker-line-color: white;" +
-            "marker-line-width: 1;" +
-            "marker-line-opacity: 0.9;" +
-            "marker-placement: point;" +
-            "marker-type: ellipse;" +
-            "marker-allow-overlap: true;"+
-          "}";
-        } else {
-          // Replace placeholders in the style
-          req.params.style = req.params.style.replace('!markers!', __dirname + '/resources/markers');
-        }
-        // send the finished req object on
-        callback(null,req);
+      var tq = new TileQuery(
+        req.params.table,
+        req.params.z,
+        req.params.x,
+        req.params.y,
+        req.query,
+        appconfig
+      );
+      if (req.params.format == 'png') {
+        tq.tile_query(function (err, data) {
+          if (err) {
+            callback(err);
+          }
+          req.params.style = data.mss;
+          req.params.sql = "(" + data.sql + ") AS _windshaft_server_sub";
+          callback(null, req);
+        });
+      } else if (req.params.format == 'grid.json'){
+        callback(new Error("Json grid not yet implemented"));
+      } else {
+        callback(new Error("Unknown tile format"));
+      }
     }
 };
 
@@ -137,6 +135,7 @@ if (cluster.isMaster){
        });
     });
   }
+
   /* Start listening */
   ws.listen(appconfig.windshaft_port);
   console.log("Worker " + cluster.worker.process.pid + " now serving tiles on : http://localhost:" + appconfig.windshaft_port + config.base_url + '/:z/:x/:y');
