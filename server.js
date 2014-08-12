@@ -40,13 +40,22 @@ var config = {
         tq.tile_query(function (err, data) {
           if (err) {
             callback(err);
+          } else {
+            req.params.style = data.mss;
+            req.params.sql = "(" + data.sql + ") AS _windshaft_server_sub";
+            callback(null, req);
           }
-          req.params.style = data.mss;
-          req.params.sql = "(" + data.sql + ") AS _windshaft_server_sub";
-          callback(null, req);
         });
       } else if (req.params.format == 'grid.json'){
-        callback(new Error("Json grid not yet implemented"));
+        tq.grid_query(function (err, data){
+          if (err){
+            callback(err);
+          } else {
+            req.params.sql = "(" + data.sql + ") AS _windshaft_server_sub";
+            req.params.interactivity = data.interactivity.join(",");
+          }
+          callback(null, req);
+        });
       } else {
         callback(new Error("Unknown tile format"));
       }

@@ -32,45 +32,49 @@ describe('Select', function(){
     });
     it('should be possible to generate a query with all sections combined', function () {
       var q = new Select();
-      q.select('field').distinct_on('another_field').from('table').where('number = 1')
-      q.order_by('way ASC').group_by('group');
-      assert.equal(q.to_sql(), "SELECT DISTINCT ON (another_field) field FROM table WHERE (number = 1) GROUP BY group ORDER BY way ASC");
+      q.select('field').distinct_on('another_field').from('table').inner_join('another_table ON another_table.fieldx = fieldy');
+      q.where('number = 1').order_by('way ASC').group_by('group');
+      assert.equal(q.to_sql(), "SELECT DISTINCT ON (another_field) field FROM table INNER JOIN another_table ON another_table.fieldx = fieldy WHERE (number = 1) GROUP BY group ORDER BY way ASC");
     });
     it('should be possible to use multiple values for all sections of a query', function () {
       var q = new Select();
       q.select('field1').select('field2').distinct_on('fielda').distinct_on('fieldb').from('table1').from('table2');
+      q.inner_join('another_table ON another_table.fieldx = fieldy').inner_join('another_table2 ON another_table2.fieldx2 = fieldy2');
       q.where('number1 = 1').where('number2 = 2').order_by('way1 ASC').order_by('way2 ASC');
       q.group_by('group1').group_by('group2');
-      assert.equal(q.to_sql(), ["SELECT DISTINCT ON (fielda, fieldb) field1, field2 FROM table1, table2 WHERE (number1 = 1) AND (number2 = 2)",
-        "GROUP BY group1, group2 ORDER BY way1 ASC, way2 ASC"].join(" "))
+      assert.equal(q.to_sql(), "SELECT DISTINCT ON (fielda, fieldb) field1, field2 FROM table1, table2 INNER JOIN another_table ON another_table.fieldx = fieldy INNER JOIN another_table2 ON another_table2.fieldx2 = fieldy2 WHERE (number1 = 1) AND (number2 = 2) GROUP BY group1, group2 ORDER BY way1 ASC, way2 ASC");
     });
   });
   describe('identifier replacement contexts', function(){
     it('should use the global identifier context in all sections of a query', function(){
       var q = new Select(null, {table: 'table_name', field: 'field_name'});
       q.select('{field}').distinct_on('{field}').from('{table}').where('{field} = 1').order_by('{field} ASC');
+      q.inner_join('another_table ON another_table.{field} = {table}.{field}');
       q.group_by('{field}');
-      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("field_name") "field_name" FROM "table_name" WHERE ("field_name" = 1) GROUP BY "field_name" ORDER BY "field_name" ASC');
+      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("field_name") "field_name" FROM "table_name" INNER JOIN another_table ON another_table."field_name" = "table_name"."field_name" WHERE ("field_name" = 1) GROUP BY "field_name" ORDER BY "field_name" ASC');
     });
     it('should use the local identifier (which overrides the global one) context in all sections of a query', function(){
       var q = new Select(null, {table: 'table_name', field: 'field_name'});
       q.select('{field}').select('{field}', {field: 'another_field'});
       q.distinct_on('{field}').distinct_on('{field}', {field: 'another_field'});
       q.from('{table}').from('{table}', {table: 'another_table'});
+      q.inner_join('another_table ON another_table.{field} = {table}.{field}');
+      q.inner_join('another_table ON another_table.{field} = {table}.{field}', {table: 'third_table', field: 'another_field'});
       q.where('{field} = 1').where('{field} = 2', {field: 'another_field'});
       q.order_by('{field} ASC').order_by('{field} DESC', {field: 'another_field'});
       q.group_by('{field}').group_by('{field}', {field: 'another_field'});
-      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("field_name", "another_field") "field_name", "another_field" FROM "table_name", "another_table" WHERE ("field_name" = 1) AND ("another_field" = 2) GROUP BY "field_name", "another_field" ORDER BY "field_name" ASC, "another_field" DESC');
+      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("field_name", "another_field") "field_name", "another_field" FROM "table_name", "another_table" INNER JOIN another_table ON another_table."field_name" = "table_name"."field_name" INNER JOIN another_table ON another_table."another_field" = "third_table"."another_field" WHERE ("field_name" = 1) AND ("another_field" = 2) GROUP BY "field_name", "another_field" ORDER BY "field_name" ASC, "another_field" DESC');
     });
     it('should be possible to use an array for an identifier to specify table.field', function(){
       var q = new Select(null, {'field': ['t1', 'f1']});
       q.select('{field}').select('{field}', {field: ['t2', 'f2']});
       q.distinct_on('{field}').distinct_on('{field}', {field: ['t2', 'f2']});
       q.from('table');
+      q.inner_join('another_table ON another_table.field = {field}');
       q.where('{field} = 1').where('{field} = 2', {field: ['t2', 'f2']});
       q.order_by('{field} ASC').order_by('{field} DESC', {field: ['t2', 'f2']});
       q.group_by('{field}').group_by('{field}', {field: ['t2', 'f2']});
-      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("t1"."f1", "t2"."f2") "t1"."f1", "t2"."f2" FROM table WHERE ("t1"."f1" = 1) AND ("t2"."f2" = 2) GROUP BY "t1"."f1", "t2"."f2" ORDER BY "t1"."f1" ASC, "t2"."f2" DESC');
+      assert.equal(q.to_sql(), 'SELECT DISTINCT ON ("t1"."f1", "t2"."f2") "t1"."f1", "t2"."f2" FROM table INNER JOIN another_table ON another_table.field = "t1"."f1" WHERE ("t1"."f1" = 1) AND ("t2"."f2" = 2) GROUP BY "t1"."f1", "t2"."f2" ORDER BY "t1"."f1" ASC, "t2"."f2" DESC');
     });
   });
   describe('value replacement contexts', function(){
