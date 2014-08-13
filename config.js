@@ -1,15 +1,5 @@
-/*
- * This is the general configuration file
- * used to define postgres credentials
- * and the application port.
- *
- * Setup specific configuration (such as
- * mapnik version of redis host) are in
- * server.js ; the defaults provided there
- * are correct for the default setup.
- */
 var config = {
-    windshaft_port: 4000,
+    port: 4000, /* Port to the application. This is not directly Windshaft, but a proxy to queue and prioritize requests */
     postgres_host: '127.0.0.1',
     postgres_port: 5432,
     postgres_user: 'datastore_default',
@@ -19,7 +9,9 @@ var config = {
     id_field: '_id',
     resources_path: __dirname + '/resources',
     num_workers: 1, /* If CPU bound, then set this to the number of CPUs and no more */
-    worker_max_requests: 1000 /* 0 to disable this feature */
+    worker_max_requests: 1000, /* 0 to disable this feature */
+    requests_per_client: 4, /* Internally, number of requests for the proxy to send to windshaft per client at once */
+    windshaft_port: 4001 /* Internally, Windshaft runs on this port */
 };
 /* Don't remove this */
 module.exports = config;
