@@ -1,8 +1,6 @@
 # nhm-windshaft-app
 
-This node application provides the tile server used by the [Ckan tiled map extension](https://github
-.com/NaturalHistoryMuseum/ckanext-map). It consists of a thin layer to queue and prioritize requests, generate SQL and 
-stylesheets on top of a [Windshaft](https://github.com/CartoDB/Windshaft) server.
+This node application provides the tile server used by the [Ckan tiled map extension](https://github.com/NaturalHistoryMuseum/ckanext-map). It consists of a thin layer to handle worker processes, queue and prioritize requests, generate SQL and stylesheets on top of a [Windshaft](https://github.com/CartoDB/Windshaft) server.
 
 - The URL for tiles is '/database/:database_name/table/:table_name/:z/:x/:y.(png|grid.json). Note that while this can serve tiles from different databases/tables, the geom fields must be the same across the tables (see *Configuration*);
 - Starting the application will spawn a number of workers (see *Configuration*), which can be set to restart after a number of requests. Sending a SIGHUP to the main process will cause all the workers to be restarted one by one, ensuring there are always some workers available - this is useful for providing code updates without downtime.
