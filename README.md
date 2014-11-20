@@ -31,3 +31,60 @@ In config.js you must define the following:
     - `{unique_id_field}`: The unique id field, expanded to include the table name. This will be quoted;
     - `{unique_id_field_label}`: The unique id field name alone. This will be quoted.
     Note that the default `_tmgeom` filter is expected by the CKAN component.
+
+## Installation
+
+There instructions are for Ubuntu 12.04 LTS. The first thing to do is install a
+recent version of [nodejs]() and [npm](). You can skip this test if you already have more recent versions.
+
+    sudo apt-get update
+    sudo apt-get install -y build-essential
+    mkdir ~/build
+    cd ~/build
+    git clone git://github.com/joyent/node.git  
+    cd node
+    git checkout tags/v0.10.15
+    ./configure --prefix=/usr/local
+    sudo make install
+    cd ..
+    git clone git://github.com/isaacs/npm.git
+    cd npm
+    git checkout tags/v1.3.5
+    sudo make install
+
+We will need `redis`:
+
+    sudo apt-get install -y redis-server
+
+And mapnik. Again, we need a more recent version than is provided with
+Ubuntu 12.04 LTS:
+
+    sudo echo "deb     http://ppa.launchpad.net/mapnik/v2.2.0/ubuntu precise main" > /etc/apt/sources.list.d/mapnik.list
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F7B93595D50B6BA 
+    sudo apt-get update
+    sudo apt-get install -y libmapnik libmapnik-dev mapnik-utils python-mapnik
+
+Finally we can install nhm-windshaft-app:
+
+    sudo git clone git://github.com/NaturalHistoryMuseum/nhm-windshaft-app.git /var/www/nhm-windshaft
+    sudo chown -R www-data:www-data /var/www/nhm-windshaft
+    cd /var/www/nhm-windshaft
+    npm install
+    
+## Running
+
+You can simply run:
+
+    node server.js
+   
+If you want to run this as a service under Ubuntu 12.04LTS, save the following file as /etc/init/mapserver.conf:
+    description "Map tile server"
+        
+    start on (local-filesystems and net-device-up IFACE=eth0)
+    stop on shutdown
+        
+    respawn
+    
+    exec sudo -u www-data /usr/local/bin/node /var/www/nhm-windshaft/server.js >> /var/log/nhm-windshaft.log 2>&1
+
+This will ensure that the service is started at boot, and is re-started if it crashes. It can be started and stopped manually using `service mapserver (start|stop)`
