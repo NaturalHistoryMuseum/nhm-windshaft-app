@@ -15,7 +15,12 @@ var config = {
     /* Specific filter handlers. Note that the default _tmgeom handler is expected by the
        map component for geometric searches. See README.md for format/options. */
     query_options : {
-        '_tmgeom': 'ST_Intersects({geom_field}, ST_Transform(ST_GeomFromText({option_value}, 4326), 3857))'
+        '_tmgeom': 'ST_Intersects({geom_field}, ST_Transform(ST_GeomFromText({option_value}, 4326), 3857))',
+        '_has_type': '{resource}."typeStatus" IS NOT NULL',
+        '_has_image': '{resource}."associatedMedia" IS NOT NULL',
+        '_has_lat_long': '{resource}."_geom" IS NOT NULL',
+        '_exclude_centroid': 'NOT (LOWER({resource}."centroid"::text) = ANY(\'{{true,yes,1}}\'))',
+        '_f': false
     }
 };
 /* Don't remove this */
